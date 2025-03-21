@@ -1,0 +1,802 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <style>
+        #map {
+            width: 678px;
+            height: 754px;
+        }
+        </style>
+        <title>Van Zandt County Historical Commission</title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/leaflet-svg-shape-markers.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="data/VanZandtCounty_1.js"></script>
+        <script src="data/ISD_2.js"></script>
+        <script src="data/MunicipalBoundaries_3.js"></script>
+        <script src="data/Cemeteries_4.js"></script>
+        <script src="data/HistoricalPlaces_5.js"></script>
+        <script src="data/VZC_HistoricalMarkersInProg_6.js"></script>
+        <script src="data/FlowingStreams_7.js"></script>
+        <script src="data/CensusDesignatedPlaces_8.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:2
+        }).fitBounds([[32.077911837194236,-96.18610646380313],[32.92457652602704,-95.2836541175807]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var title = new L.Control({'position':'topleft'});
+        title.onAdd = function (map) {
+            this._div = L.DomUtil.create('div', 'info');
+            this.update();
+            return this._div;
+        };
+        title.update = function () {
+            this._div.innerHTML = '<h2>Van Zandt County Historical Commission</h2>';
+        };
+        title.addTo(map);
+        var abstract = new L.Control({'position':'topleft'});
+        abstract.onAdd = function (map) {
+            this._div = L.DomUtil.create('div',
+            'leaflet-control abstract');
+            this._div.id = 'abstract'
+                this._div.setAttribute("onmouseenter", "abstract.show()");
+                this._div.setAttribute("onmouseleave", "abstract.hide()");
+                this.hide();
+                return this._div;
+            };
+            abstract.hide = function () {
+                this._div.classList.remove("abstractUncollapsed");
+                this._div.classList.add("abstract");
+                this._div.innerHTML = 'i'
+            }
+            abstract.show = function () {
+                this._div.classList.remove("abstract");
+                this._div.classList.add("abstractUncollapsed");
+                this._div.innerHTML = 'Acknowledgements:<br />Texas Redistricting, PLANC2193, 2023: https://redistricting.capitol.texas.gov<br />Capitol Data Portal, 2024-2025:  https://data.capitol.texas.gov/dataset/school-districts<br />Texas Department of Transportation:  https://gis-txdot.opendata.arcgis.com/datasets/texas-county-boundaries-detailed/explore<br />United States Census,TIGER/Line® Shapefiles: https://www.census.gov/cgi-bin/geo/shapefiles/index.php<br />Van Zandt County Historical Commission  Van Zandt County Map powered by: <br />QGIS: https://qgis.org/<br />GQIS2WEB: https://plugins.qgis.org/plugins/qgis2web/<br />Leaflet<br />GitHub: https://github.com/<br />Copyright OpenStreetMap Contributors CC-BY-SA';
+        };
+        abstract.addTo(map);
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_OSMStandard_0');
+        map.getPane('pane_OSMStandard_0').style.zIndex = 400;
+        var layer_OSMStandard_0 = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OSMStandard_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
+            minZoom: 2,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OSMStandard_0;
+        map.addLayer(layer_OSMStandard_0);
+        function pop_VanZandtCounty_1(feature, layer) {
+            var popupContent = '<table>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_VanZandtCounty_1_0() {
+            return {
+                pane: 'pane_VanZandtCounty_1',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,255,0.0)',
+                interactive: false,
+            }
+        }
+        map.createPane('pane_VanZandtCounty_1');
+        map.getPane('pane_VanZandtCounty_1').style.zIndex = 401;
+        map.getPane('pane_VanZandtCounty_1').style['mix-blend-mode'] = 'normal';
+        var layer_VanZandtCounty_1 = new L.geoJson(json_VanZandtCounty_1, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_VanZandtCounty_1',
+            layerName: 'layer_VanZandtCounty_1',
+            pane: 'pane_VanZandtCounty_1',
+            onEachFeature: pop_VanZandtCounty_1,
+            style: style_VanZandtCounty_1_0,
+        });
+        bounds_group.addLayer(layer_VanZandtCounty_1);
+        map.addLayer(layer_VanZandtCounty_1);
+        function pop_ISD_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME20'] !== null ? autolinker.link(String(feature.properties['NAME20']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+        function style_ISD_2_0(feature) {
+            var context = {
+                feature: feature,
+                variables: {}
+            };
+            // Start of if blocks and style check logic
+            if (exp_ISD_2rule0_eval_expression(context)) {
+                  return {
+                pane: 'pane_ISD_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.309)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(117,202,130,0.309)',
+                interactive: true,
+            };
+                }
+                else if (exp_ISD_2rule1_eval_expression(context)) {
+                  return {
+                pane: 'pane_ISD_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.309)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(195,115,224,0.309)',
+                interactive: true,
+            };
+                }
+                else if (exp_ISD_2rule2_eval_expression(context)) {
+                  return {
+                pane: 'pane_ISD_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.309)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(140,151,238,0.309)',
+                interactive: true,
+            };
+                }
+                else if (exp_ISD_2rule3_eval_expression(context)) {
+                  return {
+                pane: 'pane_ISD_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.309)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(159,203,57,0.309)',
+                interactive: true,
+            };
+                }
+                else if (exp_ISD_2rule4_eval_expression(context)) {
+                  return {
+                pane: 'pane_ISD_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.309)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(214,125,53,0.309)',
+                interactive: true,
+            };
+                }
+                else if (exp_ISD_2rule5_eval_expression(context)) {
+                  return {
+                pane: 'pane_ISD_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.309)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(228,107,156,0.309)',
+                interactive: true,
+            };
+                }
+                else if (exp_ISD_2rule6_eval_expression(context)) {
+                  return {
+                pane: 'pane_ISD_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.309)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(164,113,88,0.309)',
+                interactive: true,
+            };
+                }
+                else if (exp_ISD_2rule7_eval_expression(context)) {
+                  return {
+                pane: 'pane_ISD_2',
+                opacity: 1,
+                color: 'rgba(243,237,149,0.309)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(243,237,149,0.309)',
+                interactive: true,
+            };
+                }
+                else if (exp_ISD_2rule8_eval_expression(context)) {
+                  return {
+                pane: 'pane_ISD_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.309)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(125,139,143,0.309)',
+                interactive: true,
+            };
+                }
+                else if (exp_ISD_2rule9_eval_expression(context)) {
+                  return {
+                pane: 'pane_ISD_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.309)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(145,82,45,0.309)',
+                interactive: true,
+            };
+                }
+                else if (exp_ISD_2rule10_eval_expression(context)) {
+                  return {
+                pane: 'pane_ISD_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.309)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(190,178,151,0.309)',
+                interactive: true,
+            };
+                }
+                else if (exp_ISD_2rule11_eval_expression(context)) {
+                  return {
+                pane: 'pane_ISD_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,0.309)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(183,72,75,0.309)',
+                interactive: true,
+            };
+                }
+            else {
+                return {fill: false, stroke: false};
+            }
+        }
+        map.createPane('pane_ISD_2');
+        map.getPane('pane_ISD_2').style.zIndex = 402;
+        map.getPane('pane_ISD_2').style['mix-blend-mode'] = 'normal';
+        var layer_ISD_2 = new L.geoJson(json_ISD_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_ISD_2',
+            layerName: 'layer_ISD_2',
+            pane: 'pane_ISD_2',
+            onEachFeature: pop_ISD_2,
+            style: style_ISD_2_0,
+        });
+        bounds_group.addLayer(layer_ISD_2);
+        function pop_MunicipalBoundaries_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['NAME'] !== null ? autolinker.link(String(feature.properties['NAME']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Web Site</th>\
+                        <td class="visible-with-data" id="Web Site">' + (feature.properties['Web Site'] !== null ? autolinker.link(String(feature.properties['Web Site']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">More...</th>\
+                        <td class="visible-with-data" id="More...">' + (feature.properties['More...'] !== null ? autolinker.link(String(feature.properties['More...']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_MunicipalBoundaries_3_0() {
+            return {
+                pane: 'pane_MunicipalBoundaries_3',
+                opacity: 1,
+                color: 'rgba(0,0,0,0.402)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(174,244,130,0.402)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_MunicipalBoundaries_3');
+        map.getPane('pane_MunicipalBoundaries_3').style.zIndex = 403;
+        map.getPane('pane_MunicipalBoundaries_3').style['mix-blend-mode'] = 'normal';
+        var layer_MunicipalBoundaries_3 = new L.geoJson(json_MunicipalBoundaries_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_MunicipalBoundaries_3',
+            layerName: 'layer_MunicipalBoundaries_3',
+            pane: 'pane_MunicipalBoundaries_3',
+            onEachFeature: pop_MunicipalBoundaries_3,
+            style: style_MunicipalBoundaries_3_0,
+        });
+        bounds_group.addLayer(layer_MunicipalBoundaries_3);
+        map.addLayer(layer_MunicipalBoundaries_3);
+        function pop_Cemeteries_4(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name'] !== null ? autolinker.link(String(feature.properties['name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">latitude</th>\
+                        <td class="visible-with-data" id="latitude">' + (feature.properties['latitude'] !== null ? autolinker.link(String(feature.properties['latitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">longitude</th>\
+                        <td class="visible-with-data" id="longitude">' + (feature.properties['longitude'] !== null ? autolinker.link(String(feature.properties['longitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">source</th>\
+                        <td class="visible-with-data" id="source">' + (feature.properties['source'] !== null ? autolinker.link(String(feature.properties['source']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Cemeteries_4_0() {
+            return {
+                pane: 'pane_Cemeteries_4',
+                shape: 'triangle',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,0,0,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Cemeteries_4');
+        map.getPane('pane_Cemeteries_4').style.zIndex = 404;
+        map.getPane('pane_Cemeteries_4').style['mix-blend-mode'] = 'normal';
+        var layer_Cemeteries_4 = new L.geoJson(json_Cemeteries_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Cemeteries_4',
+            layerName: 'layer_Cemeteries_4',
+            pane: 'pane_Cemeteries_4',
+            onEachFeature: pop_Cemeteries_4,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.shapeMarker(latlng, style_Cemeteries_4_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Cemeteries_4);
+        function pop_HistoricalPlaces_5(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">CITY_NM</th>\
+                        <td>' + (feature.properties['CITY_NM'] !== null ? autolinker.link(String(feature.properties['CITY_NM']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_HistoricalPlaces_5_0() {
+            return {
+                pane: 'pane_HistoricalPlaces_5',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(51,160,44,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(255,255,255,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_HistoricalPlaces_5');
+        map.getPane('pane_HistoricalPlaces_5').style.zIndex = 405;
+        map.getPane('pane_HistoricalPlaces_5').style['mix-blend-mode'] = 'normal';
+        var layer_HistoricalPlaces_5 = new L.geoJson(json_HistoricalPlaces_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_HistoricalPlaces_5',
+            layerName: 'layer_HistoricalPlaces_5',
+            pane: 'pane_HistoricalPlaces_5',
+            onEachFeature: pop_HistoricalPlaces_5,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_HistoricalPlaces_5_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_HistoricalPlaces_5);
+        function pop_VZC_HistoricalMarkersInProg_6(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['name'] !== null ? autolinker.link(String(feature.properties['name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">latitude</th>\
+                        <td class="visible-with-data" id="latitude">' + (feature.properties['latitude'] !== null ? autolinker.link(String(feature.properties['latitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">longitude</th>\
+                        <td class="visible-with-data" id="longitude">' + (feature.properties['longitude'] !== null ? autolinker.link(String(feature.properties['longitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">source</th>\
+                        <td class="visible-with-data" id="source">' + (feature.properties['source'] !== null ? autolinker.link(String(feature.properties['source']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_VZC_HistoricalMarkersInProg_6_0() {
+            return {
+                pane: 'pane_VZC_HistoricalMarkersInProg_6',
+                shape: 'triangle',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(0,0,0,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(196,199,171,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_VZC_HistoricalMarkersInProg_6');
+        map.getPane('pane_VZC_HistoricalMarkersInProg_6').style.zIndex = 406;
+        map.getPane('pane_VZC_HistoricalMarkersInProg_6').style['mix-blend-mode'] = 'normal';
+        var layer_VZC_HistoricalMarkersInProg_6 = new L.geoJson(json_VZC_HistoricalMarkersInProg_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_VZC_HistoricalMarkersInProg_6',
+            layerName: 'layer_VZC_HistoricalMarkersInProg_6',
+            pane: 'pane_VZC_HistoricalMarkersInProg_6',
+            onEachFeature: pop_VZC_HistoricalMarkersInProg_6,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.shapeMarker(latlng, style_VZC_HistoricalMarkersInProg_6_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_VZC_HistoricalMarkersInProg_6);
+        map.addLayer(layer_VZC_HistoricalMarkersInProg_6);
+        function pop_FlowingStreams_7(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['STRM_NM'] !== null ? autolinker.link(String(feature.properties['STRM_NM']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_FlowingStreams_7_0() {
+            return {
+                pane: 'pane_FlowingStreams_7',
+                opacity: 1,
+                color: 'rgba(24,42,240,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_FlowingStreams_7');
+        map.getPane('pane_FlowingStreams_7').style.zIndex = 407;
+        map.getPane('pane_FlowingStreams_7').style['mix-blend-mode'] = 'normal';
+        var layer_FlowingStreams_7 = new L.geoJson(json_FlowingStreams_7, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_FlowingStreams_7',
+            layerName: 'layer_FlowingStreams_7',
+            pane: 'pane_FlowingStreams_7',
+            onEachFeature: pop_FlowingStreams_7,
+            style: style_FlowingStreams_7_0,
+        });
+        bounds_group.addLayer(layer_FlowingStreams_7);
+        function pop_CensusDesignatedPlaces_8(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CITY_NM'] !== null ? autolinker.link(String(feature.properties['CITY_NM']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_CensusDesignatedPlaces_8_0() {
+            return {
+                pane: 'pane_CensusDesignatedPlaces_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(51,160,44,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_CensusDesignatedPlaces_8');
+        map.getPane('pane_CensusDesignatedPlaces_8').style.zIndex = 408;
+        map.getPane('pane_CensusDesignatedPlaces_8').style['mix-blend-mode'] = 'normal';
+        var layer_CensusDesignatedPlaces_8 = new L.geoJson(json_CensusDesignatedPlaces_8, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_CensusDesignatedPlaces_8',
+            layerName: 'layer_CensusDesignatedPlaces_8',
+            pane: 'pane_CensusDesignatedPlaces_8',
+            onEachFeature: pop_CensusDesignatedPlaces_8,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_CensusDesignatedPlaces_8_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_CensusDesignatedPlaces_8);
+        var overlaysTree = [
+            {label: '<img src="legend/CensusDesignatedPlaces_8.png" /> CensusDesignatedPlaces', layer: layer_CensusDesignatedPlaces_8},
+            {label: '<img src="legend/FlowingStreams_7.png" /> FlowingStreams', layer: layer_FlowingStreams_7},
+            {label: '<img src="legend/VZC_HistoricalMarkersInProg_6.png" /> VZC_HistoricalMarkersInProg', layer: layer_VZC_HistoricalMarkersInProg_6},
+            {label: '<img src="legend/HistoricalPlaces_5.png" /> HistoricalPlaces', layer: layer_HistoricalPlaces_5},
+            {label: '<img src="legend/Cemeteries_4.png" /> Cemeteries', layer: layer_Cemeteries_4},
+            {label: '<img src="legend/MunicipalBoundaries_3.png" /> MunicipalBoundaries', layer: layer_MunicipalBoundaries_3},
+            {label: 'ISD<br /><table><tr><td style="text-align: center;"><img src="legend/ISD_2_AthensISD0.png" /></td><td>Athens ISD</td></tr><tr><td style="text-align: center;"><img src="legend/ISD_2_BrownsboroISD1.png" /></td><td>Brownsboro ISD</td></tr><tr><td style="text-align: center;"><img src="legend/ISD_2_CantonISD2.png" /></td><td>Canton ISD</td></tr><tr><td style="text-align: center;"><img src="legend/ISD_2_EdgewoodISD3.png" /></td><td>Edgewood ISD</td></tr><tr><td style="text-align: center;"><img src="legend/ISD_2_FruitvaleISD4.png" /></td><td>Fruitvale ISD</td></tr><tr><td style="text-align: center;"><img src="legend/ISD_2_GrandSalineISD5.png" /></td><td>Grand Saline ISD</td></tr><tr><td style="text-align: center;"><img src="legend/ISD_2_LindaleISD6.png" /></td><td>Lindale ISD</td></tr><tr><td style="text-align: center;"><img src="legend/ISD_2_MabankISD7.png" /></td><td>Mabank ISD</td></tr><tr><td style="text-align: center;"><img src="legend/ISD_2_MartinsMillISD8.png" /></td><td>Martins Mill ISD</td></tr><tr><td style="text-align: center;"><img src="legend/ISD_2_VanISD9.png" /></td><td>Van ISD</td></tr><tr><td style="text-align: center;"><img src="legend/ISD_2_WillsPointISD10.png" /></td><td>Wills Point ISD</td></tr><tr><td style="text-align: center;"><img src="legend/ISD_2_EustaceISD11.png" /></td><td>Eustace ISD</td></tr></table>', layer: layer_ISD_2},
+            {label: '<img src="legend/VanZandtCounty_1.png" /> VanZandtCounty', layer: layer_VanZandtCounty_1},
+            {label: "OSM Standard", layer: layer_OSMStandard_0, radioGroup: 'bm' },]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: true,
+        });
+        lay.addTo(map);
+        setBounds();
+        var i = 0;
+        layer_ISD_2.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['NAME20'] !== null?String('<div style="color: #323232; font-size: 8pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['NAME20']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_ISD_2'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_Cemeteries_4.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['name'] !== null?String('<div style="color: #000000; font-size: 8pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['name']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_Cemeteries_4'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_HistoricalPlaces_5.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['CITY_NM'] !== null?String('<div style="color: #33a02c; font-size: 6pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['CITY_NM']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_HistoricalPlaces_5'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_VZC_HistoricalMarkersInProg_6.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['name'] !== null?String('<div style="color: #323232; font-size: 6pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['name']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_VZC_HistoricalMarkersInProg_6'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_FlowingStreams_7.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['STRM_NM'] !== null?String('<div style="color: #1f78b4; font-size: 8pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['STRM_NM']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_FlowingStreams_7'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        var i = 0;
+        layer_CensusDesignatedPlaces_8.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['CITY_NM'] !== null?String('<div style="color: #323232; font-size: 6pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['CITY_NM']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_CensusDesignatedPlaces_8'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        resetLabels([layer_ISD_2,layer_Cemeteries_4,layer_HistoricalPlaces_5,layer_VZC_HistoricalMarkersInProg_6,layer_FlowingStreams_7,layer_CensusDesignatedPlaces_8]);
+        map.on("zoomend", function(){
+            resetLabels([layer_ISD_2,layer_Cemeteries_4,layer_HistoricalPlaces_5,layer_VZC_HistoricalMarkersInProg_6,layer_FlowingStreams_7,layer_CensusDesignatedPlaces_8]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_ISD_2,layer_Cemeteries_4,layer_HistoricalPlaces_5,layer_VZC_HistoricalMarkersInProg_6,layer_FlowingStreams_7,layer_CensusDesignatedPlaces_8]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_ISD_2,layer_Cemeteries_4,layer_HistoricalPlaces_5,layer_VZC_HistoricalMarkersInProg_6,layer_FlowingStreams_7,layer_CensusDesignatedPlaces_8]);
+        });
+        </script>
+    </body>
+</html>
