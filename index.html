@@ -493,8 +493,7 @@
         function pop_HistoricalPlaces_5(feature, layer) {
             var popupContent = '<table>\
                     <tr>\
-                        <th scope="row">CITY_NM</th>\
-                        <td>' + (feature.properties['CITY_NM'] !== null ? autolinker.link(String(feature.properties['CITY_NM']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td colspan="2">' + (feature.properties['CITY_NM'] !== null ? autolinker.link(String(feature.properties['CITY_NM']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                 </table>';
             var content = removeEmptyRowsFromPopupContent(popupContent, feature);
@@ -728,7 +727,7 @@
                 feature: layer.feature,
                 variables: {}
             };
-            layer.bindTooltip((layer.feature.properties['name'] !== null?String('<div style="color: #000000; font-size: 8pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['name']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_Cemeteries_4'});
+            layer.bindTooltip((layer.feature.properties['name'] !== null?String('<div style="color: #000000; font-size: 6pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['name']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_Cemeteries_4'});
             labels.push(layer);
             totalMarkers += 1;
               layer.added = true;
