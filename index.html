@@ -37,13 +37,13 @@
         <script src="data/MunicipalBoundaries_3.js"></script>
         <script src="data/Cemeteries_4.js"></script>
         <script src="data/HistoricalPlaces_5.js"></script>
-        <script src="data/VZC_HistoricalMarkersInProg_6.js"></script>
-        <script src="data/FlowingStreams_7.js"></script>
-        <script src="data/CensusDesignatedPlaces_8.js"></script>
+        <script src="data/FlowingStreams_6.js"></script>
+        <script src="data/CensusDesignatedPlaces_7.js"></script>
+        <script src="data/VZC_HistoricalMarkersInProg_8.js"></script>
         <script>
         var map = L.map('map', {
             zoomControl:false, maxZoom:28, minZoom:2
-        }).fitBounds([[32.077911837194236,-96.18610646380313],[32.92457652602704,-95.2836541175807]]);
+        }).fitBounds([[32.1397518447882,-96.28527109152927],[32.9858365723318,-95.38281874530682]]);
         var hash = new L.Hash(map);
         map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
         var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
@@ -538,22 +538,10 @@
             },
         });
         bounds_group.addLayer(layer_HistoricalPlaces_5);
-        function pop_VZC_HistoricalMarkersInProg_6(feature, layer) {
+        function pop_FlowingStreams_6(feature, layer) {
             var popupContent = '<table>\
                     <tr>\
-                        <td colspan="2">' + (feature.properties['name'] !== null ? autolinker.link(String(feature.properties['name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <th scope="row">latitude</th>\
-                        <td class="visible-with-data" id="latitude">' + (feature.properties['latitude'] !== null ? autolinker.link(String(feature.properties['latitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <th scope="row">longitude</th>\
-                        <td class="visible-with-data" id="longitude">' + (feature.properties['longitude'] !== null ? autolinker.link(String(feature.properties['longitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                    <tr>\
-                        <th scope="row">source</th>\
-                        <td class="visible-with-data" id="source">' + (feature.properties['source'] !== null ? autolinker.link(String(feature.properties['source']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                        <td colspan="2">' + (feature.properties['STRM_NM'] !== null ? autolinker.link(String(feature.properties['STRM_NM']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
                     </tr>\
                 </table>';
             var content = removeEmptyRowsFromPopupContent(popupContent, feature);
@@ -563,9 +551,117 @@
 			layer.bindPopup(content, { maxHeight: 400 });
         }
 
-        function style_VZC_HistoricalMarkersInProg_6_0() {
+        function style_FlowingStreams_6_0() {
             return {
-                pane: 'pane_VZC_HistoricalMarkersInProg_6',
+                pane: 'pane_FlowingStreams_6',
+                opacity: 1,
+                color: 'rgba(24,42,240,1.0)',
+                dashArray: '',
+                lineCap: 'square',
+                lineJoin: 'bevel',
+                weight: 1.0,
+                fillOpacity: 0,
+                interactive: false,
+            }
+        }
+        map.createPane('pane_FlowingStreams_6');
+        map.getPane('pane_FlowingStreams_6').style.zIndex = 406;
+        map.getPane('pane_FlowingStreams_6').style['mix-blend-mode'] = 'normal';
+        var layer_FlowingStreams_6 = new L.geoJson(json_FlowingStreams_6, {
+            attribution: '',
+            interactive: false,
+            dataVar: 'json_FlowingStreams_6',
+            layerName: 'layer_FlowingStreams_6',
+            pane: 'pane_FlowingStreams_6',
+            onEachFeature: pop_FlowingStreams_6,
+            style: style_FlowingStreams_6_0,
+        });
+        bounds_group.addLayer(layer_FlowingStreams_6);
+        function pop_CensusDesignatedPlaces_7(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CITY_NM'] !== null ? autolinker.link(String(feature.properties['CITY_NM']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DIST_NBR'] !== null ? autolinker.link(String(feature.properties['DIST_NBR']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_CensusDesignatedPlaces_7_0() {
+            return {
+                pane: 'pane_CensusDesignatedPlaces_7',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(51,160,44,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_CensusDesignatedPlaces_7');
+        map.getPane('pane_CensusDesignatedPlaces_7').style.zIndex = 407;
+        map.getPane('pane_CensusDesignatedPlaces_7').style['mix-blend-mode'] = 'normal';
+        var layer_CensusDesignatedPlaces_7 = new L.geoJson(json_CensusDesignatedPlaces_7, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_CensusDesignatedPlaces_7',
+            layerName: 'layer_CensusDesignatedPlaces_7',
+            pane: 'pane_CensusDesignatedPlaces_7',
+            onEachFeature: pop_CensusDesignatedPlaces_7,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_CensusDesignatedPlaces_7_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_CensusDesignatedPlaces_7);
+        function pop_VZC_HistoricalMarkersInProg_8(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['City'] !== null ? autolinker.link(String(feature.properties['City']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">THC ID</th>\
+                        <td class="visible-with-data" id="THC">' + (feature.properties['THC'] !== null ? autolinker.link(String(feature.properties['THC']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Name'] !== null ? autolinker.link(String(feature.properties['Name']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Location'] !== null ? autolinker.link(String(feature.properties['Location']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">latitude</th>\
+                        <td class="visible-with-data" id="latitude">' + (feature.properties['latitude'] !== null ? autolinker.link(String(feature.properties['latitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">longitude</th>\
+                        <td class="visible-with-data" id="longitude">' + (feature.properties['longitude'] !== null ? autolinker.link(String(feature.properties['longitude']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_VZC_HistoricalMarkersInProg_8_0() {
+            return {
+                pane: 'pane_VZC_HistoricalMarkersInProg_8',
                 shape: 'triangle',
                 radius: 4.0,
                 opacity: 1,
@@ -580,117 +676,30 @@
                 interactive: true,
             }
         }
-        map.createPane('pane_VZC_HistoricalMarkersInProg_6');
-        map.getPane('pane_VZC_HistoricalMarkersInProg_6').style.zIndex = 406;
-        map.getPane('pane_VZC_HistoricalMarkersInProg_6').style['mix-blend-mode'] = 'normal';
-        var layer_VZC_HistoricalMarkersInProg_6 = new L.geoJson(json_VZC_HistoricalMarkersInProg_6, {
+        map.createPane('pane_VZC_HistoricalMarkersInProg_8');
+        map.getPane('pane_VZC_HistoricalMarkersInProg_8').style.zIndex = 408;
+        map.getPane('pane_VZC_HistoricalMarkersInProg_8').style['mix-blend-mode'] = 'normal';
+        var layer_VZC_HistoricalMarkersInProg_8 = new L.geoJson(json_VZC_HistoricalMarkersInProg_8, {
             attribution: '',
             interactive: true,
-            dataVar: 'json_VZC_HistoricalMarkersInProg_6',
-            layerName: 'layer_VZC_HistoricalMarkersInProg_6',
-            pane: 'pane_VZC_HistoricalMarkersInProg_6',
-            onEachFeature: pop_VZC_HistoricalMarkersInProg_6,
+            dataVar: 'json_VZC_HistoricalMarkersInProg_8',
+            layerName: 'layer_VZC_HistoricalMarkersInProg_8',
+            pane: 'pane_VZC_HistoricalMarkersInProg_8',
+            onEachFeature: pop_VZC_HistoricalMarkersInProg_8,
             pointToLayer: function (feature, latlng) {
                 var context = {
                     feature: feature,
                     variables: {}
                 };
-                return L.shapeMarker(latlng, style_VZC_HistoricalMarkersInProg_6_0(feature));
+                return L.shapeMarker(latlng, style_VZC_HistoricalMarkersInProg_8_0(feature));
             },
         });
-        bounds_group.addLayer(layer_VZC_HistoricalMarkersInProg_6);
-        map.addLayer(layer_VZC_HistoricalMarkersInProg_6);
-        function pop_FlowingStreams_7(feature, layer) {
-            var popupContent = '<table>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['STRM_NM'] !== null ? autolinker.link(String(feature.properties['STRM_NM']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                </table>';
-            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-			layer.on('popupopen', function(e) {
-				addClassToPopupIfMedia(content, e.popup);
-			});
-			layer.bindPopup(content, { maxHeight: 400 });
-        }
-
-        function style_FlowingStreams_7_0() {
-            return {
-                pane: 'pane_FlowingStreams_7',
-                opacity: 1,
-                color: 'rgba(24,42,240,1.0)',
-                dashArray: '',
-                lineCap: 'square',
-                lineJoin: 'bevel',
-                weight: 1.0,
-                fillOpacity: 0,
-                interactive: false,
-            }
-        }
-        map.createPane('pane_FlowingStreams_7');
-        map.getPane('pane_FlowingStreams_7').style.zIndex = 407;
-        map.getPane('pane_FlowingStreams_7').style['mix-blend-mode'] = 'normal';
-        var layer_FlowingStreams_7 = new L.geoJson(json_FlowingStreams_7, {
-            attribution: '',
-            interactive: false,
-            dataVar: 'json_FlowingStreams_7',
-            layerName: 'layer_FlowingStreams_7',
-            pane: 'pane_FlowingStreams_7',
-            onEachFeature: pop_FlowingStreams_7,
-            style: style_FlowingStreams_7_0,
-        });
-        bounds_group.addLayer(layer_FlowingStreams_7);
-        function pop_CensusDesignatedPlaces_8(feature, layer) {
-            var popupContent = '<table>\
-                    <tr>\
-                        <td colspan="2">' + (feature.properties['CITY_NM'] !== null ? autolinker.link(String(feature.properties['CITY_NM']).replace(/'/g, '\'').toLocaleString()) : '') + '</td>\
-                    </tr>\
-                </table>';
-            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
-			layer.on('popupopen', function(e) {
-				addClassToPopupIfMedia(content, e.popup);
-			});
-			layer.bindPopup(content, { maxHeight: 400 });
-        }
-
-        function style_CensusDesignatedPlaces_8_0() {
-            return {
-                pane: 'pane_CensusDesignatedPlaces_8',
-                radius: 4.0,
-                opacity: 1,
-                color: 'rgba(35,35,35,1.0)',
-                dashArray: '',
-                lineCap: 'butt',
-                lineJoin: 'miter',
-                weight: 1,
-                fill: true,
-                fillOpacity: 1,
-                fillColor: 'rgba(51,160,44,1.0)',
-                interactive: true,
-            }
-        }
-        map.createPane('pane_CensusDesignatedPlaces_8');
-        map.getPane('pane_CensusDesignatedPlaces_8').style.zIndex = 408;
-        map.getPane('pane_CensusDesignatedPlaces_8').style['mix-blend-mode'] = 'normal';
-        var layer_CensusDesignatedPlaces_8 = new L.geoJson(json_CensusDesignatedPlaces_8, {
-            attribution: '',
-            interactive: true,
-            dataVar: 'json_CensusDesignatedPlaces_8',
-            layerName: 'layer_CensusDesignatedPlaces_8',
-            pane: 'pane_CensusDesignatedPlaces_8',
-            onEachFeature: pop_CensusDesignatedPlaces_8,
-            pointToLayer: function (feature, latlng) {
-                var context = {
-                    feature: feature,
-                    variables: {}
-                };
-                return L.circleMarker(latlng, style_CensusDesignatedPlaces_8_0(feature));
-            },
-        });
-        bounds_group.addLayer(layer_CensusDesignatedPlaces_8);
+        bounds_group.addLayer(layer_VZC_HistoricalMarkersInProg_8);
+        map.addLayer(layer_VZC_HistoricalMarkersInProg_8);
         var overlaysTree = [
-            {label: '<img src="legend/CensusDesignatedPlaces_8.png" /> CensusDesignatedPlaces', layer: layer_CensusDesignatedPlaces_8},
-            {label: '<img src="legend/FlowingStreams_7.png" /> FlowingStreams', layer: layer_FlowingStreams_7},
-            {label: '<img src="legend/VZC_HistoricalMarkersInProg_6.png" /> VZC_HistoricalMarkersInProg', layer: layer_VZC_HistoricalMarkersInProg_6},
+            {label: '<img src="legend/VZC_HistoricalMarkersInProg_8.png" /> VZC_HistoricalMarkersInProg', layer: layer_VZC_HistoricalMarkersInProg_8},
+            {label: '<img src="legend/CensusDesignatedPlaces_7.png" /> CensusDesignatedPlaces', layer: layer_CensusDesignatedPlaces_7},
+            {label: '<img src="legend/FlowingStreams_6.png" /> FlowingStreams', layer: layer_FlowingStreams_6},
             {label: '<img src="legend/HistoricalPlaces_5.png" /> HistoricalPlaces', layer: layer_HistoricalPlaces_5},
             {label: '<img src="legend/Cemeteries_4.png" /> Cemeteries', layer: layer_Cemeteries_4},
             {label: '<img src="legend/MunicipalBoundaries_3.png" /> MunicipalBoundaries', layer: layer_MunicipalBoundaries_3},
@@ -748,12 +757,12 @@
               i++;
         });
         var i = 0;
-        layer_VZC_HistoricalMarkersInProg_6.eachLayer(function(layer) {
+        layer_FlowingStreams_6.eachLayer(function(layer) {
             var context = {
                 feature: layer.feature,
                 variables: {}
             };
-            layer.bindTooltip((layer.feature.properties['name'] !== null?String('<div style="color: #323232; font-size: 6pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['name']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_VZC_HistoricalMarkersInProg_6'});
+            layer.bindTooltip((layer.feature.properties['STRM_NM'] !== null?String('<div style="color: #1f78b4; font-size: 8pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['STRM_NM']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_FlowingStreams_6'});
             labels.push(layer);
             totalMarkers += 1;
               layer.added = true;
@@ -761,40 +770,27 @@
               i++;
         });
         var i = 0;
-        layer_FlowingStreams_7.eachLayer(function(layer) {
+        layer_CensusDesignatedPlaces_7.eachLayer(function(layer) {
             var context = {
                 feature: layer.feature,
                 variables: {}
             };
-            layer.bindTooltip((layer.feature.properties['STRM_NM'] !== null?String('<div style="color: #1f78b4; font-size: 8pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['STRM_NM']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_FlowingStreams_7'});
+            layer.bindTooltip((layer.feature.properties['CITY_NM'] !== null?String('<div style="color: #323232; font-size: 6pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['CITY_NM']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_CensusDesignatedPlaces_7'});
             labels.push(layer);
             totalMarkers += 1;
               layer.added = true;
               addLabel(layer, i);
               i++;
         });
-        var i = 0;
-        layer_CensusDesignatedPlaces_8.eachLayer(function(layer) {
-            var context = {
-                feature: layer.feature,
-                variables: {}
-            };
-            layer.bindTooltip((layer.feature.properties['CITY_NM'] !== null?String('<div style="color: #323232; font-size: 6pt; font-family: \'Open Sans\', sans-serif;">' + layer.feature.properties['CITY_NM']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_CensusDesignatedPlaces_8'});
-            labels.push(layer);
-            totalMarkers += 1;
-              layer.added = true;
-              addLabel(layer, i);
-              i++;
-        });
-        resetLabels([layer_ISD_2,layer_Cemeteries_4,layer_HistoricalPlaces_5,layer_VZC_HistoricalMarkersInProg_6,layer_FlowingStreams_7,layer_CensusDesignatedPlaces_8]);
+        resetLabels([layer_ISD_2,layer_Cemeteries_4,layer_HistoricalPlaces_5,layer_FlowingStreams_6,layer_CensusDesignatedPlaces_7]);
         map.on("zoomend", function(){
-            resetLabels([layer_ISD_2,layer_Cemeteries_4,layer_HistoricalPlaces_5,layer_VZC_HistoricalMarkersInProg_6,layer_FlowingStreams_7,layer_CensusDesignatedPlaces_8]);
+            resetLabels([layer_ISD_2,layer_Cemeteries_4,layer_HistoricalPlaces_5,layer_FlowingStreams_6,layer_CensusDesignatedPlaces_7]);
         });
         map.on("layeradd", function(){
-            resetLabels([layer_ISD_2,layer_Cemeteries_4,layer_HistoricalPlaces_5,layer_VZC_HistoricalMarkersInProg_6,layer_FlowingStreams_7,layer_CensusDesignatedPlaces_8]);
+            resetLabels([layer_ISD_2,layer_Cemeteries_4,layer_HistoricalPlaces_5,layer_FlowingStreams_6,layer_CensusDesignatedPlaces_7]);
         });
         map.on("layerremove", function(){
-            resetLabels([layer_ISD_2,layer_Cemeteries_4,layer_HistoricalPlaces_5,layer_VZC_HistoricalMarkersInProg_6,layer_FlowingStreams_7,layer_CensusDesignatedPlaces_8]);
+            resetLabels([layer_ISD_2,layer_Cemeteries_4,layer_HistoricalPlaces_5,layer_FlowingStreams_6,layer_CensusDesignatedPlaces_7]);
         });
         </script>
     </body>
